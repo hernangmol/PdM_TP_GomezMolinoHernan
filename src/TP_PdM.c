@@ -32,17 +32,26 @@ int main( void )
 
 	boardInit();
 	uartInit( UART_USB, 115200);
-	gpioInit( LEDR, GPIO_OUTPUT );	//					 Led rojo indica ERROR!
-	gpioInit( LEDG, GPIO_OUTPUT );	// Led verde indica comunicación con sensor
-	punteroBus = OWinit(GPIO2);     //      	   Se inicializa el bus OneWire
-	if(punteroBus == NULL)			//		  chequeo de GPIO habilitado en LUT
+	// Led rojo indica ERROR!
+	gpioInit( LEDR, GPIO_OUTPUT );
+	// Led verde indica comunicación con sensor
+	gpioInit( LEDG, GPIO_OUTPUT );
+	// Se inicializa el bus OneWire
+	punteroBus = OWinit(GPIO2);
+	// chequeo de GPIO habilitado en LUT
+	if(punteroBus == NULL)
 	{
-		gpioWrite( LEDR, true);		//					Led RGB en rojo= ERROR!
-		while(TRUE);				//					   bloqueo del programa
+		// Led RGB en rojo= ERROR!
+		gpioWrite( LEDR, true);
+		// bloqueo del programa
+		while(TRUE);
 	}
-	delayInit( &hDelay, 1000 );     //	  ciclo de refresco de consola en 1 seg
-	UART_clearScreen();             //		              Se limpia la pantalla
-    UART_printHeader();             //		           Se imprime el encabezado
+	// ciclo de refresco de consola en 1 seg
+	delayInit( &hDelay, 1000 );
+    // Se limpia la pantalla
+	UART_clearScreen();
+	 // Se imprime el encabezado
+    UART_printHeader();
 
 /*=====[Bloque de ejecución cíclica]=========================================*/
 
@@ -50,15 +59,16 @@ int main( void )
 	{
 		if( delayRead( &hDelay ) )
 		{
+			// Lectura de temperatura
 			temp = OWreadTemperature(punteroBus->OWport,punteroBus->OWpin);
-									//					 Lectura de temperatura
+			// Refresco de pantalla
 			if (UART_consRefresh(modo, temp, tempDisp1, tempDisp2))
 					printf("ERROR!\n\r");
-									//					   Refresco de pantalla
 		}
+		// Polling de comandos por UART
 		UART_getCmd(modo_p,tempDisp1_p,tempDisp2_p);
-									//			   Polling de comandos por UART
-		switch(*modo_p)				//     Se actualizan las salidas según modo
+		// Se actualizan las salidas según modo
+		switch(*modo_p)
 		{
 			case TERMOMETRO:
 				gpioWrite( LED2, OFF );
@@ -100,7 +110,8 @@ int main( void )
 					modo = REFRIG_OFF;
 				}
 				break;
-			default:                //           Los estados inválidos resetean
+            // Los estados inválidos resetean
+			default:
 				modo = TERMOMETRO;
 		}
 
