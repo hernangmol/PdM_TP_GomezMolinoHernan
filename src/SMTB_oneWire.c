@@ -42,7 +42,8 @@ OWbus_t* OWinit(gpioMap_t GPIO_OW)
 	static OWbus_t* punt = &bus;
 
 	bus.OWgpio = GPIO_OW;
-	switch(GPIO_OW)			  //				  Look up table GPIO/ port,pin
+	// Look up table GPIO/ port,pin
+	switch(GPIO_OW)
 		{
 		case GPIO0:
 			bus.OWport = 3;
@@ -61,12 +62,13 @@ OWbus_t* OWinit(gpioMap_t GPIO_OW)
 			return (punt);
 		}
 
-	Chip_SCU_PinMux 		  //                  seteo de modo de pin oneWire
-	(bus.OWport,bus.OWpin,SCU_MODE_INACT
-	| SCU_MODE_ZIF_DIS, SCU_MODE_FUNC0 );
+	 // seteo de modo de pin oneWire
+	Chip_SCU_PinMux (bus.OWport,bus.OWpin,SCU_MODE_INACT | SCU_MODE_ZIF_DIS, SCU_MODE_FUNC0 );
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, bus.OWport, bus.OWpin);
-	*H_DWT_DEMCR |= 1<<24;    //      bit24[TRCENA]   = habilita todos los DWT
-	*H_DWT_CTRL |= 1;	      //              bit0[CYCCNTENA] =  enable CYCCNT
+	// bit24[TRCENA]   = habilita todos los DWT
+	*H_DWT_DEMCR |= 1<<24;
+	// bit0[CYCCNTENA] =  enable CYCCNT
+	*H_DWT_CTRL |= 1;
 	return (punt);
 }
 
@@ -81,13 +83,15 @@ OWbus_t* OWinit(gpioMap_t GPIO_OW)
 
 int OWpresence(int port, int pin)
 {
-	OWsetOut(port,pin);				// 					   envía pulso de reset
+	// envía pulso de reset
+	OWsetOut(port,pin);
 	OWhigh(port,pin);
 	OWdelay_uS(1000);
 	OWlow(port,pin);
 	OWdelay_uS(480);
 	OWsetIn(port,pin);
-	OWdelay_uS(40);					//						 lee el bus oneWire
+	OWdelay_uS(40);
+	// lee el bus oneWire
 	if(OWread(port,pin)==true)
 		{
 		return -1;
@@ -119,34 +123,40 @@ void OWcommand(uint8_t cmd, uint8_t * buffer, uint8_t n, int port, int pin)
 	OWsetOut(port,pin);
 	do
 	{
-		if(cmd & i)					//			    		  si la máscara = 1
+		// si la máscara = 1
+		if(cmd & i)
 		{
 			OWlow(port,pin);
 			OWdelay_uS(3);
 			OWhigh(port,pin);
 			OWdelay_uS(60);
 		}
-		else						//			    		  si la máscara = 0
+		// si la máscara = 0
+		else
 		{
 			OWlow(port,pin);
 			OWdelay_uS(60);
 			OWhigh(port,pin);
 			OWdelay_uS(10);
 		}
-		if(i==0x80)					//		     chequea si llegó al último bit
+		// chequea si llegó al último bit
+		if(i==0x80)
 		{
 			break;
 		}
 		else
 		{
-			i <<= 1;				//	  corrimiento a izquierda de la máscara
+			// corrimiento a izquierda de la máscara
+			i <<= 1;
 		}
 	}while(i != 0);
 
-	for(i=0; i<n; i++)				// lectura de un byte(8-> ROM, 9-> scratch)
+	// lectura de un byte(8-> ROM, 9-> scratch)
+	for(i=0; i<n; i++)
 	{
 		p[i] = 0;
-		for(j=0; j<8; j++)			//						lectura de a un bit
+		// lectura de a un bit
+		for(j=0; j<8; j++)
 		{
 			OWsetOut(port,pin);
 			OWlow(port,pin);
@@ -179,11 +189,16 @@ int OWreadScratch(uint8_t * buffer9, int port, int pin)
 	if(OWpresence(port, pin)==0)
 	{
 		OWdelay_uS(400);
-		__set_PRIMASK(1);					 //		 deshabilita interrupciones
-		OWcommand(0x33, p, 8, port, pin);	 //  			   comando Skip ROM
-		OWcommand(0xBE, p, 9, port, pin);	 //			   comando Read scratch
-		__set_PRIMASK(0);					 //			habilita interrupciones
-		crc = OWcrc(p, 8);					 //                     chequea CRC
+		// deshabilita interrupciones
+		__set_PRIMASK(1);
+		// comando Read ROM
+		OWcommand(0x33, p, 8, port, pin);
+		// comando Read scratch
+		OWcommand(0xBE, p, 9, port, pin);
+		// habilita interrupciones
+		__set_PRIMASK(0);
+		// chequea CRC
+		crc = OWcrc(p, 8);
 		if(crc == p[8])
 		{
 			rv = 0;
@@ -205,9 +220,12 @@ static void OWdelay_uS(uint32_t t)
 {
 	static volatile uint32_t * H_DWT_CYCCNT	 = (uint32_t *)0xE0001004;
 
-	*H_DWT_CYCCNT = 0;				//		   carga el contador de ciclos en 0
-	t *= (SystemCoreClock/1000000); //					 carga los uS a esperar
-	while(*H_DWT_CYCCNT < t);		// chequea si el contador alcanzó la cuenta
+	// carga el contador de ciclos en 0
+	*H_DWT_CYCCNT = 0;
+	// carga los uS a esperar
+	t *= (SystemCoreClock/1000000);
+	// chequea si el contador alcanzó la cuenta
+	while(*H_DWT_CYCCNT < t);
 }
 
 /*=============================================================================
@@ -228,19 +246,29 @@ int OWreadTemperature(int port, int pin)
 	{
 		gpioWrite( LEDG, true);
 		OWdelay_uS(400);
-		__set_PRIMASK(1); 					//		 deshabilita interrupciones
-		OWcommand(0x33, p, 8, port, pin); 	//  			   comando Read ROM
-		OWcommand(0x44, p, 0, port, pin); 	//		   comando Start convertion
-		__set_PRIMASK(0); 					//			habilita interrupciones
+		// deshabilita interrupciones
+		__set_PRIMASK(1);
+		// comando Read ROM
+		OWcommand(0x33, p, 8, port, pin);
+		// comando Start convertion
+		OWcommand(0x44, p, 0, port, pin);
+		// habilita interrupciones
+		__set_PRIMASK(0);
 		OWsetIn(port,pin);
-		while(OWread(port,pin) == false);	// 		espera el fin de conversión
+		// espera el fin de conversión
+		while(OWread(port,pin) == false);
 		OWpresence(port, pin);
 		OWdelay_uS(400);
-		__set_PRIMASK(1);					//		 deshabilita interrupciones
-		OWcommand(0x33, p, 8, port, pin); 	//  			   comando Read ROM
-		OWcommand(0xBE, p, 9, port, pin);	//			   comando Read scratch
-		__set_PRIMASK(0);					//			habilita interrupciones
-		crc = OWcrc(p, 8);					//                      chequea CRC
+		// deshabilita interrupciones
+		__set_PRIMASK(1);
+		// comando Read ROM
+		OWcommand(0x33, p, 8, port, pin);
+		// comando Read scratch
+		OWcommand(0xBE, p, 9, port, pin);
+		// habilita interrupciones
+		__set_PRIMASK(0);
+		// chequea CRC
+		crc = OWcrc(p, 8);
 		if(crc == p[8])
 		{
 			buffTemp = p[1];
@@ -272,10 +300,14 @@ int OWreadROM(uint8_t * buffer8, int port, int pin)
 	if(OWpresence(port, pin)==0)
 	{
 		OWdelay_uS(400);
-		__set_PRIMASK(1);					//     	 deshabilita interrupciones
-		OWcommand(0x33, p, 8, port, pin);	//             	   comando Read ROM
-		__set_PRIMASK(0);					//			habilita interrupciones
-		crc = OWcrc(p, 7);					//                      chequea CRC
+		// deshabilita interrupciones
+		__set_PRIMASK(1);
+		// comando Read ROM
+		OWcommand(0x33, p, 8, port, pin);
+		// habilita interrupciones
+		__set_PRIMASK(0);
+		// chequea CRC
+		crc = OWcrc(p, 7);
 		if(crc == p[7])
 		{
 			rv = 0;
@@ -298,20 +330,26 @@ static uint8_t OWcrc(uint8_t* code, uint8_t n)
 {
 	uint8_t crc=0, inbyte, i, mix;
 
-	while(n--)							//				      recorre cada byte
+	// recorre cada byte
+	while(n--)
 	{
 		inbyte = *code++;
-		for(i=8; i; i--)				//					  recorre bit a bit
+		// recorre bit a bit
+		for(i=8; i; i--)
 		{
-			mix= (crc ^ inbyte) & 0x01;	//					   calcula el carry
-			crc >>= 1;					//		   corrimiento a derecha de CRC
-			if(mix)						//						si carry es uno
+			// calcula el carry
+			mix= (crc ^ inbyte) & 0x01;
+			// corrimiento a derecha de CRC
+			crc >>= 1;
+			// si carry es uno
+			if(mix)
 			{
-				crc ^= 0x8C;			//		 hace XOR bitwise bits 7, 3 y 2
+				// hace XOR bitwise bits 7, 3 y 2
+				crc ^= 0x8C;
 			}
-			inbyte >>= 1;				//			  corrimiento a derecha del
-		}								// 						byte de entrada
-
+			// corrimiento a derecha del byte de entrada
+			inbyte >>= 1;
+		}
 	}
 	return crc;
 }

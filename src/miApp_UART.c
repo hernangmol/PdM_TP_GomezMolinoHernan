@@ -20,10 +20,14 @@
 
 void UART_clearScreen(void)
 {
-	uartWriteByte(   UART_USB, 27    );   // ESC command
-    uartWriteString( UART_USB, "[2J" );   // Clear screen command
-    uartWriteByte(   UART_USB, 27    );   // ESC command
-    uartWriteString( UART_USB, "[H"  );   // Cursor to home command
+	// ESC command
+	uartWriteByte(   UART_USB, 27    );
+	// Clear screen command
+    uartWriteString( UART_USB, "[2J" );
+    // ESC command
+    uartWriteByte(   UART_USB, 27    );
+    // Cursor to home command
+    uartWriteString( UART_USB, "[H"  );
 }
 
 /*=============================================================================
@@ -69,8 +73,10 @@ int UART_consRefresh(modo_t modo, int tempActual, int tempDisp1, int tempDisp2)
 			printf("Límite superior:----------------%d \n\r", tempDisp2);
 			printf("Límite inferior:----------------%d \n\r", tempDisp1);
 			printf("Temperatura :-------------------%d \n\r", tempActual);
-			uartWriteByte(UART_USB, 27);   		// 					comando ESC
-			uartWriteString(UART_USB, "[6A");   // 		  Reposiciona el cursor
+			// comando ESC
+			uartWriteByte(UART_USB, 27);
+			// Reposiciona el cursor
+			uartWriteString(UART_USB, "[6A");
 			return(0);
 			break;
 
@@ -82,8 +88,10 @@ int UART_consRefresh(modo_t modo, int tempActual, int tempDisp1, int tempDisp2)
 			printf("Límite superior:----------------%d \n\r", tempDisp2);
 			printf("Límite inferior:----------------%d \n\r", tempDisp1);
 			printf("Temperatura :-------------------%d \n\r", tempActual);
-			uartWriteByte(UART_USB, 27);   		// 					comando ESC
-			uartWriteString(UART_USB, "[6A");   // 		  Reposiciona el cursor
+			// comando ESC
+			uartWriteByte(UART_USB, 27);
+			// Reposiciona el cursor
+			uartWriteString(UART_USB, "[6A");
 			return(0);
 			break;
 
@@ -94,8 +102,10 @@ int UART_consRefresh(modo_t modo, int tempActual, int tempDisp1, int tempDisp2)
 			printf("Límite superior:----------------%d \n\r", tempDisp2);
 			printf("Límite inferior:----------------%d \n\r", tempDisp1);
 			printf("Temperatura :-------------------%d \n\r", tempActual);
-			uartWriteByte(UART_USB, 27);   		// 					comando ESC
-			uartWriteString(UART_USB, "[6A");   // 		  Reposiciona el cursor
+			// comando ESC
+			uartWriteByte(UART_USB, 27);
+			// Reposiciona el cursor
+			uartWriteString(UART_USB, "[6A");
 			return(0);
 			break;
 
@@ -106,8 +116,10 @@ int UART_consRefresh(modo_t modo, int tempActual, int tempDisp1, int tempDisp2)
 			printf("Límite superior:----------------%d \n\r", tempDisp2);
 			printf("Límite inferior:----------------%d \n\r", tempDisp1);
 			printf("Temperatura :-------------------%d \n\r", tempActual);
-			uartWriteByte(UART_USB, 27);   		// 					comando ESC
-			uartWriteString(UART_USB, "[6A");   // 		  Reposiciona el cursor
+			// comando ESC
+			uartWriteByte(UART_USB, 27);
+			// Reposiciona el cursor
+			uartWriteString(UART_USB, "[6A");
 			return(0);
 			break;
 
@@ -118,8 +130,10 @@ int UART_consRefresh(modo_t modo, int tempActual, int tempDisp1, int tempDisp2)
 			printf("Límite superior:----------------%d \n\r", tempDisp2);
 			printf("Límite inferior:----------------%d \n\r", tempDisp1);
 			printf("Temperatura :-------------------%d \n\r", tempActual);
-			uartWriteByte(UART_USB, 27);   		// 					comando ESC
-			uartWriteString(UART_USB, "[6A");   // 		  Reposiciona el cursor
+			// comando ESC
+			uartWriteByte(UART_USB, 27);
+			// Reposiciona el cursor
+			uartWriteString(UART_USB, "[6A");
 			return(0);
 			break;
 
@@ -149,9 +163,11 @@ void UART_getCmd (modo_t* modo_punt,int* disp1_punt,int* disp2_punt)
 	if(inStatus == 0)
 	{	if (uartReadByte(uart, &bufferIn))
 		{
-			switch (bufferIn)		//					recepción de caracteres
-			{						//               solo acepta T; C; R; A o B
-			case 'T':				//                  (mayúscula o minúscula)
+			// recepción de caracteres
+			// solo acepta T; C; R; A o B (mayúscula o minúscula)
+			switch (bufferIn)
+			{
+			case 'T':
 			case 't':
 				*modo_punt = TERMOMETRO;
 				inStatus = 0;
@@ -181,13 +197,16 @@ void UART_getCmd (modo_t* modo_punt,int* disp1_punt,int* disp2_punt)
 			}
 		}
 	}
-	else if(inStatus == 1)								// recepción de números
-	{													//		    casos A y B
+	// recepción de números (casos A y B)
+	else if(inStatus == 1)
+	{
 		if (uartReadByte(uart, &bufferIn))
 		{
-			if ((bufferIn-48)>= 0 && (bufferIn-48) <=9) //  solo acepta números
+			// solo acepta números
+			if ((bufferIn-48)>= 0 && (bufferIn-48) <=9)
 			{
-				aux = 10 * (bufferIn-48);				//  decenas de temDisp1
+				// decenas de temDisp1
+				aux = 10 * (bufferIn-48);
 				inStatus = 3;
 			}
 			return;
@@ -197,9 +216,11 @@ void UART_getCmd (modo_t* modo_punt,int* disp1_punt,int* disp2_punt)
 	{
 		if (uartReadByte(uart, &bufferIn))
 		{
-			if((bufferIn-48)>= 0 && (bufferIn-48) <=9)  //  solo acepta números
+			// solo acepta números
+			if((bufferIn-48)>= 0 && (bufferIn-48) <=9)
 			{
-				aux = 10 * (bufferIn-48);				//  decenas de temDisp2
+				//  decenas de temDisp2
+				aux = 10 * (bufferIn-48);
 				inStatus = 4;
 			}
 			return;
@@ -209,11 +230,14 @@ void UART_getCmd (modo_t* modo_punt,int* disp1_punt,int* disp2_punt)
 	{
 		if (uartReadByte(uart, &bufferIn))
 		{
-			if ((bufferIn-48)>= 0 && (bufferIn-48) <=9) //  solo acepta números
+			// solo acepta números
+			if ((bufferIn-48)>= 0 && (bufferIn-48) <=9)
 			{
-				aux = aux + (bufferIn-48);				// unidades de temDisp1
-				if(aux < *disp2_punt)					// chequea que temDisp1
-				{										//  no quede > temDisp2
+				// unidades de temDisp1
+				aux = aux + (bufferIn-48);
+				// chequea que temDisp1 no quede > temDisp2
+				if(aux < *disp2_punt)
+				{
 					*disp1_punt = aux;
 				}
 				inStatus = 0;
@@ -225,11 +249,14 @@ void UART_getCmd (modo_t* modo_punt,int* disp1_punt,int* disp2_punt)
 	{
 		if (uartReadByte(uart, &bufferIn))
 		{
-			if ((bufferIn-48)>= 0 && (bufferIn-48) <=9) //  solo acepta números
+			// solo acepta números
+			if ((bufferIn-48)>= 0 && (bufferIn-48) <=9)
 			{
-				aux = aux + (bufferIn-48);				// unidades de temDisp1
-				if(aux > *disp1_punt)					// chequea que temDisp2
-					{									//  no quede < temDisp1
+				// unidades de temDisp2
+				aux = aux + (bufferIn-48);
+				// chequea que temDisp2 no quede < temDisp1
+				if(aux > *disp1_punt)
+					{
 						*disp2_punt = aux;
 					}
 				inStatus = 0;
