@@ -6,6 +6,7 @@ Alumno: Hernán Gomez Molino
 
 Plataforma embebida: EDU-CIAA-NXP
 
+
 Aplicación:
 
 Se trata de un termostato con histéresis que tiene tres modos de funcionamiento:
@@ -25,6 +26,7 @@ Periféricos:
 
 . UART
 
+
 Breve descripción de cada estado:
 
 . Termómetro: informa la temperatura cíclicamente por consola, hasta que recibe un pedido de cambio de modo por consola. Es el estado inicial de la MEF y retorna a este si se recibe pedido de cambio a modo OFF (M->OFF).
@@ -41,6 +43,7 @@ Módulos de software:
 SMTB_oneWire.c y SMTB_oneWire.h para el sensor DS18B20.
 
 miApp_UART.c  y miApp_UART.h para el envío de temperatura y recepción de los comandos.
+
 
 Prototipos de las principales funciones públicas y privadas de cada módulo definido SMTB_oneWire.c
 
